@@ -80,7 +80,7 @@ git clone https://github.com/VernonOY/alpha-skills.git
 ```bash
 pip install pandas numpy scipy matplotlib pyarrow
 pip install tushare    # A-share
-pip install yfinance   # US / HK
+pip install yfinance   # US / HK / Brazil
 ```
 
 ### 4. Talk to it
@@ -92,18 +92,20 @@ pip install yfinance   # US / HK
 ```
 
 <a id="multi-market"></a>
-## Multi-Market: A-Share · Hong Kong · US
+## Multi-Market: A-Share · Hong Kong · US · Brazil
 
-Works out of the box for three markets. Auto-adapts trading rules per market:
+Works out of the box for four markets. Auto-adapts trading rules per market:
 
-| | A-share 🇨🇳 | Hong Kong 🇭🇰 | US 🇺🇸 |
-|---|---|---|---|
-| **Data** | Tushare Pro | Yahoo Finance | Yahoo Finance |
-| **Price Limit** | ±10% | None | None |
-| **T+N** | T+1 | T+0 | T+0 |
-| **Cost** | 0.3% | 0.2% | 0.1% |
-| **Benchmark** | CSI 300 | HSI | S&P 500 |
-| **Pool** | 5000+ stocks | 78 HSI constituents | 143 S&P 500 |
+| | A-share 🇨🇳 | Hong Kong 🇭🇰 | US 🇺🇸 | Brazil 🇧🇷 |
+|---|---|---|---|---|
+| **Data** | Tushare Pro | Yahoo Finance | Yahoo Finance | Yahoo Finance |
+| **Price Limit** | ±10% | None | None | None (circuit breakers) |
+| **T+N** | T+1 | T+0 | T+0 | T+0 |
+| **Cost** | 0.3% | 0.2% | 0.1% | 0.2% |
+| **Benchmark** | CSI 300 | HSI | S&P 500 | Ibovespa |
+| **Pool** | 5000+ stocks | 78 HSI constituents | 143 S&P 500 | 99 IBrX 100 |
+
+> **Brazil is price/volume only** — no fundamentals, and live Yahoo pulls are still pending verification. See [adapter flags](examples/README.md#brazil-adapter-flags-巴西适配器选项).
 
 Switch markets in one line:
 
