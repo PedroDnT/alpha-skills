@@ -80,9 +80,10 @@ python -c "import examples.br_data_yfinance as m; print(m.refresh_universe())"
 - **Static index membership** → survivorship bias; B3 index turnover is high.
 - **Nominal BRL against a zero risk-free rate** — with the Selic in double digits this
   flatters Sharpe. Prefer long-short spreads.
-- **Live Yahoo pulls not yet verified.** The loaders pass 38 offline contract assertions,
-  but Yahoo rate-limited the build environment, so run one
-  `load_prices("20240101", "20240331")` from an unthrottled network before relying on it.
+- **Live Yahoo pulls not yet verified.** The loaders pass the offline contract tests
+  (`python tests/test_br_data_yfinance.py`), but Yahoo rate-limited the build
+  environment, so run one `load_prices("20240101", "20240331")` from an unthrottled
+  network before relying on it.
 
 ## Writing Your Own Adapter 编写自定义适配器
 
