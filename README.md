@@ -105,7 +105,7 @@ Works out of the box for four markets. Auto-adapts trading rules per market:
 | **Benchmark** | CSI 300 | HSI | S&P 500 | Ibovespa |
 | **Pool** | 5000+ stocks | 78 HSI constituents | 143 S&P 500 | 99 IBrX 100 |
 
-> **Brazil is price/volume only** — no fundamentals, and live Yahoo pulls are still pending verification. See [adapter flags](examples/README.md#brazil-adapter-flags-巴西适配器选项).
+> **Brazil is price/volume only** — no fundamentals, and the live Yahoo data path is still unverified. Run the [first-run checks](examples/README.md#first-run-verify-the-data-path-首次运行验证数据链路) before relying on it.
 
 Switch markets in one line:
 
