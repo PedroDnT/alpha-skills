@@ -73,6 +73,63 @@ January, May, September) / B3每四个月调整一次成分股，调整后重新
 python -c "import examples.br_data_yfinance as m; print(m.refresh_universe())"
 ```
 
+### First run: verify the data path 首次运行：验证数据链路
+
+The adapter was built and unit-tested in an environment Yahoo rate-limited, so the live
+data path has never been exercised. Run these three checks once, in order, from the repo
+root, before trusting any Brazilian factor output.
+
+适配器在被 Yahoo 限流的环境中开发，实盘数据链路尚未验证。首次使用前请在仓库根目录按顺序执行以下三步检查。
+
+**1. Contract tests — offline, no network:**
+
+```bash
+python tests/test_br_data_yfinance.py
+```
+
+Expect `All contract assertions passed.` and exit code 0. This proves the output schemas,
+date convention and split adjustment are correct. It does **not** touch Yahoo.
+
+**2. Two-ticker probe — confirms Yahoo answers at all (~30s):**
+
+```bash
+python -c "
+import examples.br_data_yfinance as br
+print(br.load_prices('20240102','20240131',['PETR4.SA','VALE3.SA']).head())
+"
+```
+
+Run this *before* the full pull. If Yahoo is throttling you it fails here in about 30
+seconds; the same failure across all 99 symbols takes several minutes before it tells you
+anything. Expect ~21 rows per ticker with PETR4 in the tens of BRL.
+
+先跑这一步。如果 Yahoo 限流，30秒内即可发现；跑全量99个代码则要等几分钟才报错。
+
+**3. Full universe pull — the check that actually matters:**
+
+```bash
+python -c "
+import examples.br_data_yfinance as br
+df = br.load_prices('20240102', '20240331')
+print(f'rows={len(df)} tickers={df.ts_code.nunique()} dates={df.trade_date.nunique()}')
+"
+```
+
+Expect roughly **6,000 rows across ~99 tickers and ~60 trading days**. Then confirm the
+skills see it end to end — set `MARKET: BR` in your config and ask your assistant to
+`evaluate reversal_5`.
+
+**Troubleshooting 故障排查**
+
+| Symptom 现象 | Meaning 含义 |
+|---|---|
+| `429 Too Many Requests`, or `curl (35) Recv failure: Connection reset by peer` | Yahoo is throttling your IP, not an adapter bug. Wait, or run from a different network. Shared cloud/CI IPs are throttled most often. |
+| `rows=0` plus a warning naming *every* symbol | Nothing reached the adapter — network, not data. The real error prints above the result. |
+| Full pull hangs for minutes | Same throttling, ×99 symbols. Cancel and run the two-ticker probe to see the error quickly. |
+| Warning naming *a few* symbols | Normal. Those tickers have no Yahoo history (recent renames or IPOs); the universe shrinks and the run continues. |
+| `ModuleNotFoundError: yfinance` | `pip install yfinance` |
+| `ModuleNotFoundError: examples` | Run from the repo root so `examples/` is importable. |
+
 **Caveats 注意事项** — full detail in the module docstring:
 
 - **No fundamentals.** `load_financial` is empty by design and `load_daily_basic` returns
@@ -80,10 +137,8 @@ python -c "import examples.br_data_yfinance as m; print(m.refresh_universe())"
 - **Static index membership** → survivorship bias; B3 index turnover is high.
 - **Nominal BRL against a zero risk-free rate** — with the Selic in double digits this
   flatters Sharpe. Prefer long-short spreads.
-- **Live Yahoo pulls not yet verified.** The loaders pass the offline contract tests
-  (`python tests/test_br_data_yfinance.py`), but Yahoo rate-limited the build
-  environment, so run one `load_prices("20240101", "20240331")` from an unthrottled
-  network before relying on it.
+- **~99 names is a thin cross-section** — about 20 per quintile. Read IC and long-short
+  spreads rather than leaning on single-quintile results.
 
 ## Writing Your Own Adapter 编写自定义适配器
 
